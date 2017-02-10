@@ -40,7 +40,36 @@
         </scroller>
       </swiper-item>
       <swiper-item>
-        456
+        <scroller lock-x scrollbar-y :height="swiper_height" ref="scroller_hot" class="scroller_list">
+          <div>
+            <card class="hot_card">
+              <section slot="header" class="card_header" @click="clickHotCardHeader">
+                <div class="card_header_l">
+                  <img src="https://img5.doubanio.com/view/movie_poster_cover/lpst/public/p2410569976.jpg" class="card_header_img">
+                </div>
+                <div class="card_header_r">
+                  <p class="card_header_r_title">极限特工3：终极回归</p>
+                  <p>Xander Returns</p>
+                  <p>动作 惊悚 冒险</p>
+                  <p>美国|2017</p>
+                  <p>豆瓣评分(3771)</p>
+                  <p>5.8</p>
+                </div>
+              </section>
+              <section slot="content" class="card-padding">
+                <p class="card_ctx" style="font-size:14px;line-height:1.2;">故事聚焦在由范·迪塞尔带头的的特工小队和以甄子丹为首的反派组织之间的对决。在这部作品中，迪塞尔饰演的特工凯奇不再是孤胆英雄，他将与一群出色的伙伴共同作战：塞缪尔·杰克逊饰演的国安局特工，印度女星迪皮卡·帕度柯妮饰演的与凯奇颇有渊源的女猎人，凭借《吸血鬼日记》走红的妮娜·杜波夫扮演的技术专家，《女子监狱》女星露比·罗丝饰演的狙击手,中国当红偶像演员吴亦凡饰演的特工Nicks。</p>
+                <p style="color:#999;font-size:12px;">Posted on January 21, 2015</p>
+              </section>
+            </card>
+            <card>
+              <img slot="header" src="http://placeholder.qiniudn.com/640x300" style="width:100%;display:block;">
+              <div slot="content" class="card-padding">
+                <p style="color:#999;font-size:12px;">Posted on January 21, 2015</p>
+                <p style="font-size:14px;line-height:1.2;">Quisque eget vestibulum nulla. Quisque quis dui quis ex ultricies efficitur vitae non felis. Phasellus quis nibh hendrerit..</p>
+              </div>
+            </card>
+          </div>
+        </scroller>
       </swiper-item>
     </swiper>
     <tabbar class="menu_tab">
@@ -49,7 +78,7 @@
         <span slot="label">首页</span>
       </tabbar-item>
       <tabbar-item>
-        <img slot="icon" src="../../assets/icno/classify_gray.png">
+        <img slot="icon" @click="getTop250" src="../../assets/icno/classify_gray.png">
         <span slot="label">分类</span>
       </tabbar-item>
       <tabbar-item show-dot link="/home">
@@ -66,7 +95,7 @@
 </template>
 
 <script>
-  import { Tab, TabItem, Swiper, SwiperItem, Tabbar, TabbarItem, Flexbox, FlexboxItem, XButton, Scroller, LoadMore, Loading } from 'vux'
+  import { Tab, TabItem, Swiper, SwiperItem, Tabbar, TabbarItem, Flexbox, FlexboxItem, XButton, Scroller, LoadMore, Loading, Card } from 'vux'
 
   export default {
     name: 'index',
@@ -82,7 +111,8 @@
       XButton,
       Scroller,
       LoadMore,
-      Loading
+      Loading,
+      Card
     },
     data () {
       return {
@@ -112,6 +142,8 @@
         },
         // 电影数据
         film_data: {},
+        // 热门推荐的电影id
+        hot_film_id: [],
         // 是否初始化数据
         is_uninit: true,
         // 是否上拉动作
@@ -119,12 +151,38 @@
         // 是否已无加载数据
         is_no_data: false,
         // 是否加载完 即将上映
-        is_coming_done: false
+        is_coming_done: false,
+        // 是否加载完 热门推荐 加载过一次不需要再加载
+        is_hot_init: false
       }
     },
     mounted: function () {
       this.initSwiperScrollerHeight()
       this.initFilmData()
+    },
+    watch: {
+      /**
+      * 监听swiper_index变化为'热门推荐'tab时，请求推荐电影数据
+      */
+      swiper_index: function (val) {
+        if (val === 1 && !this.is_hot_init) {
+          this.is_uninit = true
+          console.log('swiper_hot')
+          this.$http.get('/douban/v2/movie/subject/3230115').then(response => {
+            console.log(response.body)
+            // scroller容器重载数据
+            // this.$nextTick(() => {
+            //   this.$refs.scroller.reset({
+            //     top: 0
+            //   })
+            // })
+            this.is_uninit = false
+            this.is_hot_init = true
+          }, error => {
+            console.log(error)
+          })
+        }
+      }
     },
     methods: {
       // 初始化swiper和scroller容器的高度
@@ -133,6 +191,7 @@
         let toggleTabH = document.getElementsByClassName('toggle_tab')[0].getBoundingClientRect().height
         let menuTabH = document.getElementsByClassName('menu_tab')[0].getBoundingClientRect().height
         this.swiper_height = `${screenH - toggleTabH - menuTabH}px`
+        console.log(window.screen.availHeight)
       },
       /**
       * 初始化数据
@@ -147,6 +206,28 @@
             })
           })
           this.is_uninit = false
+        }, error => {
+          console.log(error)
+        })
+      },
+      getTop250 () {
+        let rand = 0
+        let idArr = []
+        // 生成随机数组
+        for (let i = 0; i < 5; i++) {
+          rand = parseInt(Math.random() * 100)
+          if (idArr.indexOf(rand) === -1) {
+            idArr.push(rand)
+          } else {
+            i--
+          }
+        }
+        // 请求豆瓣top250 api，100条中随机获取5条，id不重复
+        this.$http.get('/douban/v2/movie/top250?strat=0&count=100').then(response => {
+          for (let valIndex of idArr) {
+            this.hot_film_id.push(response.body.subjects[valIndex].id)
+          }
+          console.log(this.hot_film_id)
         }, error => {
           console.log(error)
         })
@@ -194,6 +275,9 @@
             that.is_no_data = true
           }, 1000)
         }
+      },
+      clickHotCardHeader () {
+        console.log('clickHotCardHeader')
       }
     }
   }
@@ -287,5 +371,54 @@
   .want_btn{
     color: #FF4949;
     border: 1px solid #FF4949;
+  }
+  .card_header{
+    width: 95%;
+    height: 8rem;
+    margin: .5rem auto;
+    padding-top: 1rem;
+    background-color: #58B7FF;
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: row;
+    justify-content: space-between ;
+  }
+  .card_header_l{
+    width: 38%;
+    height: 100%;
+    /*background-color: #13CE66;*/
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+  .card_header_r{
+    width: 60%;
+    height: 100%;
+    padding-right: .5rem;
+    /*background-color: #FF4949;*/
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
+  .card_header_r .card_header_r_title{
+    width: 90%;
+    font-size: 1rem;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .card_header_l img{
+    max-height: 100%;
+  }
+  .card_header_r p{
+    font-size: .8rem;
+    margin: 0;
+    color: #fff;
+  }
+  .card_ctx{
+    font-size: .7rem;
+    color: #475669;
   }
 </style>
