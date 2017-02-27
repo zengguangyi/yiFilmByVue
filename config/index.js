@@ -28,6 +28,13 @@ module.exports = {
             pathRewrite: {
                 '^/douban': ''
             }
+        },
+        '/local':{
+            target: 'http://127.0.0.1:3000',
+            changeOrigin: true,
+            pathRewrite: {
+                '^/local': ''
+            }
         }
     },
     // CSS Sourcemaps off by default because relative paths are "buggy"
