@@ -1,0 +1,65 @@
+/*color*/
+.light-blue{
+	color: #58B7FF;
+}
+.blue{
+	color: #20A0FF;
+}
+.dark-blue{
+	color: #1D8CE0;
+}
+.star-yellow{
+	color: #ffc107;
+}
+.success{
+	color: #13CE66;
+}
+.warning{
+	color: #F7BA2A;
+}
+.danger{
+	color: #FF4949;
+}
+.black{
+	color: #1F2D3D
+}
+.light-black{
+	color: #324057
+}
+.extra-light-black{
+	color: #475669
+}
+.silver{
+	color: #8492A6
+}
+.light-silver{
+	color: #99A9BF
+}
+.extra-light-silver{
+	color: #C0CCDA
+}
+.gray{
+	color: #D3DCE6
+}
+.light-gray{
+	color: #E5E9F2
+}
+.extra-light-gray{
+	color: #EFF2F7
+}
+.dark-white{
+	color: #F9FAFC
+}
+.white{
+	color: #FFFFFF
+}
+/*background-color*/
+.light-blue-bg{
+	background-color: #58B7FF;
+}
+.blue-bg{
+	background-color: #20A0FF;
+}
+.dark-blue-bg{
+	background-color: #1D8CE0;
+}
