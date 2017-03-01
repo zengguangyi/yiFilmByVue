@@ -12,7 +12,7 @@
       <router-link :to="{path:'movie',query:{id: item.id}}" v-for="item in film_data.subjects" :id="item.id">
         <section class="film-box">
           <div class="film-img">
-            <img :src="item.images.small" />
+            <img :src="item.images.large" />
           </div>
           <div class="film-text">
             <div class="film-name">{{ item.title }}</div>
